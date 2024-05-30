@@ -1,0 +1,103 @@
+using System;
+
+namespace ToDoApp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var userManager = new UserManager();
+            var toDoListManager = new ToDoListManager();
+            int currentUserId = -1;
+
+            while (true)
+            {
+                Console.WriteLine("ToDo List Management CLI Tool");
+                Console.WriteLine(currentUserId == -1
+                    ? "1. Register User\n2. Login as User\n3. Exit"
+                    : "1. Create ToDo List\n2. Edit ToDo List\n3. Delete ToDo List\n4. List ToDo Lists\n5. Share ToDo List\n6. Logout\n7. Exit");
+
+                var choice = Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        if (currentUserId == -1)
+                        {
+                            Console.Write("Enter username: ");
+                            var username = Console.ReadLine();
+                            Console.Write("Enter email: ");
+                            var email = Console.ReadLine();
+                            userManager.AddUser(username, email);
+                        }
+                        else
+                        {
+                            Console.Write("Enter title: ");
+                            var title = Console.ReadLine();
+                            toDoListManager.AddToDoList(title, currentUserId);
+                        }
+                        break;
+
+                    case "2":
+                        if (currentUserId == -1)
+                        {
+                            Console.Write("Enter user ID: ");
+                            if (int.TryParse(Console.ReadLine(), out int userId))
+                            {
+                                var user = userManager.GetUserById(userId);
+                                if (user != null) currentUserId = userId;
+                                else Console.WriteLine("User not found.");
+                            }
+                        }
+                        else
+                        {
+                            Console.Write("Enter ToDo List ID to edit: ");
+                            if (int.TryParse(Console.ReadLine(), out int toDoListId))
+                            {
+                                Console.Write("Enter new title: ");
+                                var newTitle = Console.ReadLine();
+                                toDoListManager.EditToDoList(toDoListId, newTitle, currentUserId);
+                            }
+                        }
+                        break;
+
+                    case "3":
+                        if (currentUserId != -1)
+                        {
+                            Console.Write("Enter ToDo List ID to delete: ");
+                            if (int.TryParse(Console.ReadLine(), out int toDoListId))
+                                toDoListManager.DeleteToDoList(toDoListId, currentUserId);
+                        }
+                        break;
+
+                    case "4":
+                        if (currentUserId != -1) toDoListManager.ListToDoLists(currentUserId);
+                        break;
+
+                    case "5":
+                        if (currentUserId != -1)
+                        {
+                            Console.Write("Enter ToDo List ID to share: ");
+                            if (int.TryParse(Console.ReadLine(), out int toDoListId))
+                            {
+                                Console.Write("Enter User ID to share with: ");
+                                if (int.TryParse(Console.ReadLine(), out int shareUserId))
+                                    toDoListManager.ShareToDoList(toDoListId, currentUserId, shareUserId);
+                            }
+                        }
+                        break;
+
+                    case "6":
+                        if (currentUserId != -1) currentUserId = -1;
+                        break;
+
+                    case "7":
+                        return;
+
+                    default:
+                        Console.WriteLine("Invalid option.");
+                        break;
+                }
+            }
+        }
+    }
+}
